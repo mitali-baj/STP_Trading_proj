@@ -7,18 +7,18 @@ export const chartData = [
 ];
 
 export const indices = [
-  { name: 'S&P 500', value: 5464.61, change: -0.16, color: 'red', flag: '🇺🇸' },
-  { name: 'Nasdaq 100', value: 19700.43, change: -0.26, color: 'red', flag: '🇺🇸' },
-  { name: 'Dow 30', value: 39150.34, change: 0.04, color: 'green', flag: '🇺🇸' },
+  { name: 'AAPL', value: 5464.61, change: -0.16, color: 'red', flag: '🇺🇸' },
+  { name: 'GOOG', value: 19700.43, change: -0.26, color: 'red', flag: '🇺🇸' },
+  { name: 'MSFT', value: 39150.34, change: 0.04, color: 'green', flag: '🇺🇸' },
   { name: 'Nikkei 225', value: 38596.40, change: -0.09, color: 'red', flag: '🇯🇵' },
 ];
 
 export const watchlistItems = [
-  { symbol: 'NIFTY', price: 23467, change: -0.53, color: 'red' },
-  { symbol: 'BANKNIFTY', price: 51613.35, change: -0.27, color: 'red' },
-  { symbol: 'SPX', price: 5464.61, change: -0.16, color: 'red' },
-  { symbol: 'BTCUSD', price: 64444, change: 0.33, color: 'green' },
-  { symbol: 'VIX', price: 13.2, change: -0.6, color: 'red' },
+  { symbol: 'AAPL', price: 23467, change: -0.53, color: 'red' },
+  { symbol: 'GOOG', price: 51613.35, change: -0.27, color: 'red' },
+  { symbol: 'MSFT', price: 5464.61, change: -0.16, color: 'red' },
+  { symbol: 'UL', price: 64444, change: 0.33, color: 'green' },
+  { symbol: 'WMT', price: 13.2, change: -0.6, color: 'red' },
   { symbol: 'XAUUSD', price: 2321.875, change: -1.62, color: 'red' },
   { symbol: 'WTICOUS', price: 80.952, change: -0.83, color: 'red' },
   { symbol: 'USDJPY', price: 159.76, change: 0.54, color: 'green' },

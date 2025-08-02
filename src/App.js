@@ -113,6 +113,7 @@ import Homepage from './pages/Homepage';
 import Order from './pages/Order';
 import Header from './components/Header'; // Assuming your header is in components folder
 import './index.css';
+import LifeCycle from './pages/Lifecycle';
 
 function App() {
   return (
@@ -122,6 +123,7 @@ function App() {
         <Route path="/" element={<Homepage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/order" element={<Order />} />
+        <Route path="/lifecycle" element={<LifeCycle />} />
         {/* Add more routes here as needed */}
       </Routes>
     </Router>

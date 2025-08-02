@@ -19,7 +19,7 @@ const tradeService = {
           quantity: qty,
           price: 0, // Set price as needed, or pass as argument
           buySell: side.toUpperCase(),
-          clientId: 'Mitali_client',
+          clientId: 'client_Mitali',
         }),
       });
       if (!response.ok) throw new Error('API error');

@@ -47,6 +47,7 @@ const Header = () => (
           { name: 'Portfolio', path: '/portfolio' },
           { name: 'Reports & Charts', path: '/reports' },
           { name: 'Technical Analytics', path: '/technical' },
+          { name: 'Trade LifeCycle', path: '/lifecycle' },
         //   { name: 'Brokers', path: '/brokers' },
         ].map((item) => (
           <Link
