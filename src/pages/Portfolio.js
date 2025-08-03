@@ -6,6 +6,7 @@ const Portfolio = () => {
 
   const handleNewMessage = (msg) => {
     // Ensure string or parse if needed
+    // check "messageType" whether "prices" or "news" and handle accordingly
     try {
       const parsedMsg = typeof msg === 'string' ? JSON.parse(msg) : msg;
       setMessages(prev => [...prev, parsedMsg]);

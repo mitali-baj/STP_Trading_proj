@@ -19,13 +19,35 @@ const WebSocketClient = ({ onMessage }) => {
 
         
 
-        //Subscribe to /topic/simulation
+        //Subscribe to /topic/simulation for news data
         client.subscribe('/topic/simulation', (message) => {
             console.log('Received message:', message);
           if (message.body) {
             try {
               const parsed = JSON.parse(message.body);
-              onMessage(parsed);
+              const finalMessage = {
+                "messageType": "news",
+                "message": parsed
+              }
+              onMessage(finalMessage);
+            } catch (err) {
+              console.error('Error parsing WebSocket message:', err);
+            }
+          }
+        });
+
+        //Subscribe to /topic/prices for prices data
+        client.subscribe('/topic/prices', (pricesMessage) => {
+            console.log('Received message:', pricesMessage);
+          if (pricesMessage.body) {
+            try {
+              const pricesParsed = JSON.parse(pricesMessage.body);
+              const finalMessage = {
+                "messageType": "prices",
+                "message": pricesParsed
+              }
+              onMessage(finalMessage);
+
             } catch (err) {
               console.error('Error parsing WebSocket message:', err);
             }
