@@ -114,6 +114,7 @@ import Order from './pages/Order';
 import Header from './components/Header'; // Assuming your header is in components folder
 import './index.css';
 import LifeCycle from './pages/Lifecycle';
+import Portfolio from './pages/Portfolio';
 
 function App() {
   return (
@@ -124,6 +125,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/order" element={<Order />} />
         <Route path="/lifecycle" element={<LifeCycle />} />
+        <Route path="/portfolio" element={<Portfolio />} />
         {/* Add more routes here as needed */}
       </Routes>
     </Router>
