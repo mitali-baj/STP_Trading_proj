@@ -44,17 +44,28 @@ const Order = () => {
         // Limit to last 9
         setNewsMessages(prev => [formatted, ...prev].slice(0, 6));
       }
-      if(parsedMsg.messageType === 'prices'){
-        const priceFormatted = {
 
-          symbol: parsedMsg.message?.ticker || 'N/A',
-          price: parsedMsg.message?.close,
 
-        };
+if (parsedMsg.messageType === 'prices') {
+  const newSymbol = parsedMsg.message?.ticker || 'N/A';
+  const newPrice = parsedMsg.message?.close;
 
-        // Limit to last 9
-        setWatchListItems(prev => [priceFormatted, ...prev].slice(0, 7));
-      }
+  setWatchListItems(prevItems => {
+    const existingIndex = prevItems.findIndex(item => item.symbol === newSymbol);
+
+    if (existingIndex !== -1) {
+      // Update price of existing ticker
+      const updated = [...prevItems];
+      updated[existingIndex] = { ...updated[existingIndex], price: newPrice };
+      return updated;
+    } else {
+      // Add new ticker if not already present
+      return [...prevItems, { symbol: newSymbol, price: newPrice }];
+    }
+  });
+}
+
+
 
     } catch (err) {
       console.error('Error parsing WebSocket message:', err);

@@ -3,7 +3,7 @@ import { TrendingUp, TrendingDown } from 'lucide-react';
 
 // Service layer for API calls
 const tradeService = {
-  submitOrder: async ({ symbol, qty, side }) => {
+  submitOrder: async ({ symbol, qty, side, price }) => {
     try {
       // Generate a UUID for tickerId
       const tradeId = crypto.randomUUID ? crypto.randomUUID() : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
@@ -17,7 +17,7 @@ const tradeService = {
           tradeId: tradeId,
           ticker: symbol,
           quantity: qty,
-          price: 0, // Set price as needed, or pass as argument
+          price: price, // Set price as needed, or pass as argument
           buySell: side.toUpperCase(),
           clientId: 'client_Mitali',
         }),
@@ -44,10 +44,10 @@ const Tickers = ({ items }) => {
     }));
   };
 
-  const handleTrade = async (symbol, side) => {
+  const handleTrade = async (symbol, side, price) => {
     const qty = Number(qtys[symbol]) || 1;
     try {
-      await tradeService.submitOrder({ symbol, qty, side });
+      await tradeService.submitOrder({ symbol, qty, side, price });
       // Optionally show success message or update UI
     } catch (e) {
       // Optionally show error message
@@ -110,13 +110,13 @@ const Tickers = ({ items }) => {
               <div className="flex gap-2">
                 <button
                   className="w-16 px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-500 transition"
-                  onClick={() => handleTrade(item.symbol, 'buy')}
+                  onClick={() => handleTrade(item.symbol, 'buy', item.price)}
                 >
                   Buy
                 </button>
                 <button
                   className="w-16 px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-500 transition"
-                  onClick={() => handleTrade(item.symbol, 'sell')}
+                  onClick={() => handleTrade(item.symbol, 'sell', item.price)}
                 >
                   Sell
                 </button>
