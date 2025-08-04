@@ -58,7 +58,7 @@ const Tickers = ({ items }) => {
     <aside className="w-full max-w-xl bg-gray-800 p-4 rounded-lg overflow-y-auto">
       <h3 className="text-xl font-semibold mb-4 text-blue-400">Watchlist</h3>
       <ul className="space-y-4">
-        {items.map((item) => (
+        {items.map((item, index) => (
           <li
             key={item.symbol}
             className="flex flex-col gap-2 p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200"
@@ -69,7 +69,8 @@ const Tickers = ({ items }) => {
               <div className="flex flex-col min-w-[80px]">
                 <span className="font-medium text-white">{item.symbol}</span>
                 <span className="text-sm text-gray-400">
-                  {item.price.toLocaleString()}
+                  {/* {item.price.toLocaleString()} */}
+                  {item.price}
                 </span>
               </div>
 
@@ -79,15 +80,15 @@ const Tickers = ({ items }) => {
                   item.color === 'green' ? 'text-green-400' : 'text-red-400'
                 }`}
               >
-                {item.color === 'green' ? (
+                {/* {item.color === 'green' ? (
                   <TrendingUp size={16} className="mr-1" />
                 ) : (
                   <TrendingDown size={16} className="mr-1" />
-                )}
-                <span>
+                )} */}
+                {/* <span>
                   {item.change > 0 ? '+' : ''}
                   {item.change}%
-                </span>
+                </span> */}
               </div>
 
               {/* Qty input */}

@@ -19,9 +19,9 @@ const Portfolio = () => {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-semibold mb-4">📈 Live Trade Updates</h1>
-
+      {/* <div>Hello</div> */}
       <WebSocketClient onMessage={handleNewMessage} />
-
+      {/* <div>Hello</div> */}
       <ul className="bg-gray-800 text-white p-4 rounded space-y-2 max-h-96 overflow-y-auto">
         {messages.map((msg, idx) => (
           <li key={idx} className="border-b border-gray-700 py-2">
