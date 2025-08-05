@@ -115,17 +115,19 @@ import Header from './components/Header'; // Assuming your header is in componen
 import './index.css';
 import LifeCycle from './pages/Lifecycle';
 import Portfolio from './pages/Portfolio';
+import ReportsCharts from './pages/ReportsCharts';
 
 function App() {
   return (
     <Router>
       <Header />
       <Routes>
-        <Route path="/" element={<Homepage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        {/* <Route path="/" element={<Homepage />} />
+        <Route path="/dashboard" element={<Dashboard />} /> */}
         <Route path="/order" element={<Order />} />
         <Route path="/lifecycle" element={<LifeCycle />} />
         <Route path="/portfolio" element={<Portfolio />} />
+        <Route path="/reports" element={<ReportsCharts />} />
         {/* Add more routes here as needed */}
       </Routes>
     </Router>

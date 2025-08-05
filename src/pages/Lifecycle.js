@@ -26,7 +26,6 @@ return (
     <div className="bg-gray-900 text-white min-h-screen font-sans flex flex-col">
         <main className="flex-grow p-6 overflow-hidden flex">
             <div className="flex-grow mr-4 overflow-x-auto">
-                <h2 className="text-2xl font-semibold mb-6 text-blue-400">Market Summary</h2>
                 {Object.entries(grouped).map(([tradeId, logs]) => {
                     // Get all unique keys from logs for dynamic columns
                     const allKeys = Array.from(
