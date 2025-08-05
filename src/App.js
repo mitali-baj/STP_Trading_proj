@@ -116,6 +116,7 @@ import './index.css';
 import LifeCycle from './pages/Lifecycle';
 import Portfolio from './pages/Portfolio';
 import ReportsCharts from './pages/ReportsCharts';
+import PortfolioBot from './pages/Portfoliobot';
 
 function App() {
   return (
@@ -128,6 +129,7 @@ function App() {
         <Route path="/lifecycle" element={<LifeCycle />} />
         <Route path="/portfolio" element={<Portfolio />} />
         <Route path="/reports" element={<ReportsCharts />} />
+        <Route path="/portfoliobot" element={<PortfolioBot />} />
         {/* Add more routes here as needed */}
       </Routes>
     </Router>

@@ -60,6 +60,7 @@ const Header = () => {
             { name: 'Reports & Charts', path: '/reports' },
             { name: 'Technical Analytics', path: '/technical' },
             { name: 'Trade LifeCycle', path: '/lifecycle' },
+            // { name: 'Portfolio BOT', path: '/portfoliobot' },
           ].map((item) => (
             <Link
               key={item.name}
