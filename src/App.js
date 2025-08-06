@@ -117,19 +117,20 @@ import LifeCycle from './pages/Lifecycle';
 import Portfolio from './pages/Portfolio';
 import ReportsCharts from './pages/ReportsCharts';
 import PortfolioBot from './pages/Portfoliobot';
+import TechnicalAnalysis from './pages/TechnicalAnalysis';
 
 function App() {
   return (
     <Router>
       <Header />
       <Routes>
-        {/* <Route path="/" element={<Homepage />} />
-        <Route path="/dashboard" element={<Dashboard />} /> */}
+        <Route path="/" element={<Homepage />} />
         <Route path="/order" element={<Order />} />
         <Route path="/lifecycle" element={<LifeCycle />} />
         <Route path="/portfolio" element={<Portfolio />} />
         <Route path="/reports" element={<ReportsCharts />} />
         <Route path="/portfoliobot" element={<PortfolioBot />} />
+        <Route path="/technical" element={<TechnicalAnalysis />} />
         {/* Add more routes here as needed */}
       </Routes>
     </Router>

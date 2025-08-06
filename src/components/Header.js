@@ -44,14 +44,17 @@ const Header = () => {
   return (
     <header className="bg-gray-800 p-4 flex items-center justify-between">
       <div className="flex items-center space-x-6">
-        {/* <Link 
+        {/* <div className="text-2xl font-bold text-blue-400">
+          STP TRADING
+        </div> */}
+        <Link 
           to="/" 
           className={`text-2xl font-bold transition-colors duration-200 ${
             isActive('/') ? 'text-blue-400' : 'text-blue-500 hover:text-blue-400'
           }`}
         >
-          HOME
-        </Link> */}
+          TradeSphere
+        </Link> 
         <nav className="hidden md:flex space-x-6">
           {[
             // { name: 'Dashboard', path: '/dashboard' },
@@ -60,7 +63,6 @@ const Header = () => {
             { name: 'Reports & Charts', path: '/reports' },
             { name: 'Technical Analytics', path: '/technical' },
             { name: 'Trade LifeCycle', path: '/lifecycle' },
-            // { name: 'Portfolio BOT', path: '/portfoliobot' },
           ].map((item) => (
             <Link
               key={item.name}
