@@ -602,22 +602,22 @@ ${JSON.stringify(holdings, null, 2)}
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div className="bg-gray-700 p-8 rounded-xl">
               <p className="text-gray-400 text-lg">Notional Value</p>
-              <p className="text-white font-semibold text-xl">₹{summary.totalNotional.toFixed(2)}</p>
+              <p className="text-white font-semibold text-xl">${summary.totalNotional.toFixed(2)}</p>
             </div>
             <div className="bg-gray-700 p-8 rounded-xl">
               <p className="text-gray-400 text-lg">Market Value</p>
-              <p className="text-white font-semibold text-xl">₹{summary.totalMarket.toFixed(2)}</p>
+              <p className="text-white font-semibold text-xl">${summary.totalMarket.toFixed(2)}</p>
             </div>
             <div className="bg-gray-700 p-8 rounded-xl">
               <p className="text-gray-400 text-lg">Unrealized P/L</p>
               <p className={`font-semibold text-xl ${summary.totalUnrealized >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                ₹{summary.totalUnrealized.toFixed(2)}
+                ${summary.totalUnrealized.toFixed(2)}
               </p>
             </div>
             <div className="bg-gray-700 p-8 rounded-xl">
               <p className="text-gray-400 text-lg">Realized P/L</p>
               <p className={`font-semibold text-xl ${summary.totalRealized >= 0 ? 'text-green-300' : 'text-red-300'}`}>
-                ₹{summary.totalRealized.toFixed(2)}
+                ${summary.totalRealized.toFixed(2)}
               </p>
             </div>
           </div>
@@ -641,7 +641,7 @@ ${JSON.stringify(holdings, null, 2)}
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => `₹${parseFloat(value).toFixed(2)}`} />
+                <Tooltip formatter={(value) => `$${parseFloat(value).toFixed(2)}`} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -672,15 +672,15 @@ ${JSON.stringify(holdings, null, 2)}
               <tr key={index} className="border-b border-gray-700 text-sm">
                 <td className="px-4 py-2">{item.ticker}</td>
                 <td className="px-4 py-2">{item.qty}</td>
-                <td className="px-4 py-2">₹{item.notionalPrice}</td>
-                <td className="px-4 py-2">₹{item.notionalValue.toFixed(2)}</td>
-                <td className="px-4 py-2">₹{item.marketPrice}</td>
-                <td className="px-4 py-2">₹{item.marketValue.toFixed(2)}</td>
+                <td className="px-4 py-2">${item.notionalPrice}</td>
+                <td className="px-4 py-2">${item.notionalValue.toFixed(2)}</td>
+                <td className="px-4 py-2">${item.marketPrice}</td>
+                <td className="px-4 py-2">${item.marketValue.toFixed(2)}</td>
                 <td className={`px-4 py-2 font-semibold ${item.unrealizedPnL >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  ₹{item.unrealizedPnL.toFixed(2)}
+                  ${item.unrealizedPnL.toFixed(2)}
                 </td>
                 <td className={`px-4 py-2 font-semibold ${item.realizedPnL >= 0 ? 'text-green-300' : 'text-red-300'}`}>
-                  ₹{item.realizedPnL.toFixed(2)}
+                  ${item.realizedPnL.toFixed(2)}
                 </td>
               </tr>
             ))}
