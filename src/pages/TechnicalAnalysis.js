@@ -7,22 +7,13 @@ const TechnicalAnalysis = () => {
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [isLive, setIsLive] = useState(true);
+  const [currentDataIndex, setCurrentDataIndex] = useState(0);
   const [hoverInfo, setHoverInfo] = useState({ visible: false, data: null, x: 0, y: 0, type: '' });
   
   const candlestickRef = useRef(null);
   const rsiRef = useRef(null);
   const macdRef = useRef(null);
   const intervalRef = useRef(null);
-
-  // const tickers = [
-  //   { symbol: 'AAPL', name: 'Apple Inc.', file: 'simulated_AAPL_live.json' },
-  //   { symbol: 'GOOGL', name: 'Alphabet Inc.', file: 'simulated_GOOGL_live.json' },
-  //   { symbol: 'IBM', name: 'IBM Corporation', file: 'simulated_IBM_.json' },
-  //   { symbol: 'MSFT', name: 'Microsoft Corp.', file: 'simulated_MSFT_live.json' },
-  //   { symbol: 'TSLA', name: 'Tesla Inc.', file: 'simulated_TSLA_live.json' },
-  //   { symbol: 'UL', name: 'Unilever PLC', file: 'simulated_UL_live.json' },
-  //   { symbol: 'WMT', name: 'Walmart Inc.', file: 'simulated_WMT_live.json' }
-  // ];
 
   const tickers = [
     { symbol: 'AAPL', file: 'simulated_AAPL_live.json' },
@@ -66,6 +57,24 @@ const TechnicalAnalysis = () => {
     }
   };
 
+  // Get current date in YYYY-MM-DD format
+  const getCurrentDate = () => {
+    const now = new Date();
+    return now.toISOString().split('T')[0];
+  };
+
+  // Filter data for current day only
+  const filterCurrentDayData = (fullData) => {
+    if (!fullData || fullData.length === 0) return [];
+    
+    const currentDate = getCurrentDate();
+    
+    return fullData.filter(item => {
+      const itemDate = new Date(item.timestamp).toISOString().split('T')[0];
+      return itemDate === currentDate;
+    });
+  };
+
   // Load data from JSON files
   const loadTickerData = async (ticker) => {
     try {
@@ -99,53 +108,40 @@ const TechnicalAnalysis = () => {
     }
   };
 
-  // Get current live data slice based on market hours
-  const getCurrentDataSlice = (fullData) => {
-    if (!fullData || fullData.length === 0) return [];
+  // Get current time-based data slice for live simulation
+  const getCurrentTimeBasedSlice = (currentDayData, currentIndex) => {
+    if (!currentDayData || currentDayData.length === 0 || currentIndex < 0) return [];
     
-    const marketStatus = getMarketStatus();
-    const now = new Date();
-    
-    if (marketStatus === 'PRE_MARKET') {
-      // Show previous day's complete data
-      return fullData;
-    } else if (marketStatus === 'AFTER_MARKET') {
-      // Show complete current day data
-      return fullData;
-    } else {
-      // Market is open - show data up to current time
-      const currentHour = now.getHours();
-      const currentMinute = now.getMinutes();
-      
-      return fullData.filter(item => {
-        const itemDate = new Date(item.timestamp);
-        const itemHour = itemDate.getHours();
-        const itemMinute = itemDate.getMinutes();
-        
-        const itemTime = itemHour * 60 + itemMinute;
-        const currentTime = currentHour * 60 + currentMinute;
-        
-        return itemTime <= currentTime;
-      });
-    }
+    // Return data from start of day up to current index
+    return currentDayData.slice(0, Math.min(currentIndex + 1, currentDayData.length));
   };
 
-  // Update live data display based on current time
-  const updateLiveData = async () => {
+  // Update live data display based on current time simulation
+  const updateLiveData = () => {
     if (!isLive) return;
     
     setData(prevData => {
       const newData = { ...prevData };
       
-      // Update displayed data slice based on current time
+      // Update displayed data slice for each ticker
       tickers.forEach(ticker => {
-        if (prevData[ticker.symbol] && prevData[`${ticker.symbol}_full`]) {
-          const fullData = prevData[`${ticker.symbol}_full`];
-          newData[ticker.symbol] = getCurrentDataSlice(fullData);
+        if (prevData[`${ticker.symbol}_current_day`]) {
+          const currentDayData = prevData[`${ticker.symbol}_current_day`];
+          const currentSlice = getCurrentTimeBasedSlice(currentDayData, currentDataIndex);
+          newData[ticker.symbol] = currentSlice;
         }
       });
       
       return newData;
+    });
+    
+    // Move to next data point
+    setCurrentDataIndex(prevIndex => {
+      const currentDayData = data[`${selectedTicker}_current_day`];
+      if (currentDayData && prevIndex < currentDayData.length - 1) {
+        return prevIndex + 1;
+      }
+      return prevIndex; // Stay at last data point when reached end
     });
     
     setLastUpdate(new Date());
@@ -194,7 +190,7 @@ const TechnicalAnalysis = () => {
     return { macdLine, signalLine, histogram };
   };
 
-  // Load initial data and start live updates
+  // Load initial data
   useEffect(() => {
     const loadData = async () => {
       const tickerData = {};
@@ -203,40 +199,30 @@ const TechnicalAnalysis = () => {
       for (const ticker of tickers) {
         const fullTickerData = await loadTickerData(ticker);
         
-        // Store both full data and current display slice
-        tickerData[`${ticker.symbol}_full`] = fullTickerData;
-        tickerData[ticker.symbol] = getCurrentDataSlice(fullTickerData);
+        // Filter for current day only
+        const currentDayData = filterCurrentDayData(fullTickerData);
+        
+        // Store current day data and initial empty display
+        tickerData[`${ticker.symbol}_current_day`] = currentDayData;
+        tickerData[ticker.symbol] = [];
       }
       
       setData(tickerData);
+      setCurrentDataIndex(0);
       setLoading(false);
     };
     
     loadData();
-    
-    // Start live updates every 2 seconds during market hours
-    const marketStatus = getMarketStatus();
-    if (marketStatus === 'OPEN') {
-      intervalRef.current = setInterval(updateLiveData, 2000);
-    }
-    
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
   }, []);
 
-  // Update live data when isLive changes
+  // Start/stop live updates
   useEffect(() => {
-    const marketStatus = getMarketStatus();
+    const currentDayData = data[`${selectedTicker}_current_day`];
     
-    if (isLive && !intervalRef.current && marketStatus === 'OPEN') {
+    if (isLive && currentDayData && currentDayData.length > 0) {
+      // Start live updates every 2 seconds
       intervalRef.current = setInterval(updateLiveData, 2000);
-    } else if (!isLive && intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    } else if (marketStatus !== 'OPEN' && intervalRef.current) {
+    } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
@@ -246,7 +232,21 @@ const TechnicalAnalysis = () => {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isLive]);
+  }, [isLive, selectedTicker, currentDataIndex, data]);
+
+  // Reset data index when ticker changes
+  useEffect(() => {
+    setCurrentDataIndex(0);
+    
+    // Update display immediately for new ticker
+    setData(prevData => {
+      const newData = { ...prevData };
+      if (prevData[`${selectedTicker}_current_day`]) {
+        newData[selectedTicker] = [];
+      }
+      return newData;
+    });
+  }, [selectedTicker]);
 
   // Mouse event handlers for charts
   const handleMouseMove = (e, chartType) => {
@@ -318,7 +318,14 @@ const TechnicalAnalysis = () => {
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    if (!data || data.length === 0) return;
+    if (!data || data.length === 0) {
+      // Show "Waiting for data..." message
+      ctx.fillStyle = '#9CA3AF';
+      ctx.font = '16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Waiting for live data...', canvas.width / 2, canvas.height / 2);
+      return;
+    }
 
     const padding = 40;
     const chartWidth = canvas.width - 2 * padding;
@@ -329,7 +336,7 @@ const TechnicalAnalysis = () => {
     const maxPrice = Math.max(...prices);
     const priceRange = maxPrice - minPrice;
     
-    const candleWidth = chartWidth / data.length * 0.8;
+    const candleWidth = Math.max(2, chartWidth / data.length * 0.8);
     
     // Draw grid
     ctx.strokeStyle = '#374151';
@@ -387,7 +394,7 @@ const TechnicalAnalysis = () => {
     ctx.fillStyle = '#E5E7EB';
     ctx.font = 'bold 16px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(`${selectedTicker} - Live Price Chart`, canvas.width / 2, 25);
+    ctx.fillText(`${selectedTicker} - Live Price Chart (Today)`, canvas.width / 2, 25);
   };
 
   const drawLineChart = (canvas, data, options = {}) => {
@@ -398,7 +405,13 @@ const TechnicalAnalysis = () => {
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    if (!data || data.length === 0) return;
+    if (!data || data.length === 0) {
+      ctx.fillStyle = '#9CA3AF';
+      ctx.font = '16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Waiting for data...', canvas.width / 2, canvas.height / 2);
+      return;
+    }
 
     const padding = 40;
     const chartWidth = canvas.width - 2 * padding;
@@ -492,7 +505,13 @@ const TechnicalAnalysis = () => {
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    if (!macdData || macdData.macdLine.length === 0) return;
+    if (!macdData || macdData.macdLine.length === 0) {
+      ctx.fillStyle = '#9CA3AF';
+      ctx.font = '16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Waiting for data...', canvas.width / 2, canvas.height / 2);
+      return;
+    }
 
     const padding = 40;
     const chartWidth = canvas.width - 2 * padding;
@@ -524,7 +543,7 @@ const TechnicalAnalysis = () => {
     ctx.stroke();
     
     // Draw histogram bars
-    const barWidth = chartWidth / macdData.histogram.length * 0.8;
+    const barWidth = Math.max(1, chartWidth / macdData.histogram.length * 0.8);
     macdData.histogram.forEach((value, index) => {
       const x = padding + (chartWidth / macdData.histogram.length) * index + (chartWidth / macdData.histogram.length) * 0.1;
       const y = padding + ((maxValue - Math.max(0, value)) / valueRange) * chartHeight;
@@ -579,9 +598,11 @@ const TechnicalAnalysis = () => {
 
   // Create charts when data or selected ticker changes
   useEffect(() => {
-    if (!data[selectedTicker] || loading) return;
+    if (loading) return;
 
     const tickerData = data[selectedTicker];
+    if (!tickerData) return;
+
     const closes = tickerData.map(d => d.close);
 
     // Draw candlestick chart
@@ -590,7 +611,7 @@ const TechnicalAnalysis = () => {
     }
 
     // Draw RSI chart
-    if (rsiRef.current) {
+    if (rsiRef.current && closes.length > 14) {
       const rsiData = calculateRSI(closes);
       drawLineChart(rsiRef.current, rsiData, {
         color: '#8B5CF6',
@@ -601,26 +622,40 @@ const TechnicalAnalysis = () => {
         title: 'RSI (14)',
         type: 'rsi'
       });
+    } else if (rsiRef.current) {
+      drawLineChart(rsiRef.current, [], {
+        min: 0,
+        max: 100,
+        type: 'rsi'
+      });
     }
 
     // Draw MACD chart
-    if (macdRef.current) {
+    if (macdRef.current && closes.length > 26) {
       const macdData = calculateMACD(closes);
       drawMACDChart(macdRef.current, macdData);
+    } else if (macdRef.current) {
+      drawMACDChart(macdRef.current, { macdLine: [], signalLine: [], histogram: [] });
     }
   }, [selectedTicker, data, loading]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading trading data...</div>
+        <div className="text-white text-xl">Loading trading data for today...</div>
       </div>
     );
   }
 
   const currentData = data[selectedTicker];
+  const currentDayData = data[`${selectedTicker}_current_day`];
   const latestPrice = currentData && currentData.length > 0 ? currentData[currentData.length - 1] : null;
-  const marketStatus = getMarketStatus();
+  const currentDate = getCurrentDate();
+  
+  // Calculate progress
+  const progress = currentDayData && currentDayData.length > 0 
+    ? ((currentDataIndex + 1) / currentDayData.length * 100).toFixed(1)
+    : 0;
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
@@ -634,26 +669,49 @@ const TechnicalAnalysis = () => {
                 STP Trading Platform
                 <div className="flex items-center gap-2 ml-4">
                   <div className={`w-3 h-3 rounded-full ${
-                    marketStatus === 'OPEN' && isLive ? 'bg-green-400 animate-pulse' : 
-                    marketStatus === 'OPEN' && !isLive ? 'bg-yellow-400' :
-                    'bg-red-400'
+                    isLive ? 'bg-green-400 animate-pulse' : 'bg-red-400'
                   }`}></div>
                   <span className="text-lg font-normal text-gray-300">
-                    {marketStatus === 'OPEN' && isLive ? 'LIVE MARKET' : 
-                     marketStatus === 'OPEN' && !isLive ? 'MARKET PAUSED' :
-                     marketStatus === 'PRE_MARKET' ? 'PRE-MARKET' : 'MARKET CLOSED'}
+                    {isLive ? 'LIVE SIMULATION' : 'PAUSED'}
                   </span>
                 </div>
               </h1>
               <p className="text-gray-400">
-                {marketStatus === 'OPEN' ? 'Real-time Technical Analysis • Live Market Data' : 
-                 marketStatus === 'PRE_MARKET' ? 'Technical Analysis • Pre-Market View (Previous Day Data)' :
-                 'Technical Analysis • Market Closed'}
+                Real-time Technical Analysis • Current Day: {currentDate}
               </p>
               <p className="text-gray-500 text-sm">
                 Last Update: {lastUpdate.toLocaleTimeString()} • 
-                Market Hours: 9:30 AM - 4:00 PM EST
+                Progress: {progress}% ({currentDataIndex + 1}/{currentDayData?.length || 0} data points)
               </p>
+            </div>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setIsLive(!isLive)}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  isLive 
+                    ? 'bg-red-600 hover:bg-red-700 text-white' 
+                    : 'bg-green-600 hover:bg-green-700 text-white'
+                }`}
+              >
+                {isLive ? 'Pause' : 'Resume'}
+              </button>
+              <button
+                onClick={() => {
+                  setCurrentDataIndex(0);
+                  setData(prevData => {
+                    const newData = { ...prevData };
+                    tickers.forEach(ticker => {
+                      if (prevData[`${ticker.symbol}_current_day`]) {
+                        newData[ticker.symbol] = [];
+                      }
+                    });
+                    return newData;
+                  });
+                }}
+                className="px-4 py-2 rounded-lg font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+              >
+                Reset Day
+              </button>
             </div>
           </div>
         </div>
@@ -668,7 +726,7 @@ const TechnicalAnalysis = () => {
             >
               {tickers.map(ticker => (
                 <option key={ticker.symbol} value={ticker.symbol}>
-                  {ticker.symbol} - {ticker.name}
+                  {ticker.symbol}
                 </option>
               ))}
             </select>
@@ -706,6 +764,24 @@ const TechnicalAnalysis = () => {
           </div>
         )}
 
+        {/* Progress Bar */}
+        <div className="mb-8 bg-gray-800 rounded-lg p-4">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-gray-400">Today's Trading Progress</span>
+            <span className="text-sm text-blue-400">{progress}%</span>
+          </div>
+          <div className="w-full bg-gray-700 rounded-full h-2">
+            <div 
+              className="bg-blue-500 h-2 rounded-full transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+          <div className="flex justify-between mt-2 text-xs text-gray-500">
+            <span>Market Open (9:30 AM)</span>
+            <span>Market Close (4:00 PM)</span>
+          </div>
+        </div>
+
         {/* Charts */}
         <div className="space-y-8">
           {/* Candlestick Chart */}
@@ -716,9 +792,9 @@ const TechnicalAnalysis = () => {
                 <h2 className="text-2xl font-semibold">Live Price Chart - {selectedTicker}</h2>
               </div>
               <div className="text-sm text-gray-400">
-                {marketStatus === 'OPEN' ? 'Live Market Data • Auto-updating every 2s' :
-                 marketStatus === 'PRE_MARKET' ? 'Previous Day Complete Data' :
-                 'Market Closed • Complete Day Data'}
+                {currentData && currentData.length > 0 
+                  ? `${currentData.length} data points • Auto-updating every 2s`
+                  : 'Waiting for data...'}
               </div>
             </div>
             <div className="h-[600px] w-full">
